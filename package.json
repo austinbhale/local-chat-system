@@ -1,0 +1,15 @@
+{
+  "name": "local-chat-system",
+  "version": "1.0.0",
+  "description": "Chat messaging system framework for local chat sessions.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Austin Hale",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.16.4",
+    "socket.io": "^2.2.0"
+  }
+}
