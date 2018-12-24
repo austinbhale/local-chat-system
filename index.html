@@ -5,12 +5,18 @@
     <link rel="stylesheet" href="public/style.css" />
   </head>
   <body>
-    <ul id="messages"></ul>
-    <form action="">
-      <input id="m" autocomplete="off" /><button>Send</button>
-    </form>
+    <ul id="users">
+      <li id="selected" style="text-decoration: underline;">Active Users</li>
+    </ul>
+    <div class="container">
+      <ul id="messages"></ul>
+      <form action="">
+        <input id="m" autocomplete="off" maxlength="140"/><button>Send</button>
+      </form>
+    </div>
   </body>
   <script src="/socket.io/socket.io.js"></script>
   <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
   <script src="public/main.js"></script>
+  <!-- <script src="test.js"></script> -->
 </html>

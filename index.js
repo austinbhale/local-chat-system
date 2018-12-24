@@ -3,7 +3,8 @@ var app = express();
 var http = require("http").Server(app);
 var io = require("socket.io")(http);
 var port = process.env.PORT || 3000;
-var nameList = [];
+const nameList = [];
+const messageHistory = [];
 
 app.get("/", function(req, res) {
   res.sendFile(__dirname + "/index.html");
@@ -27,25 +28,35 @@ app.use(function(err, req, res, next) {
 io.on("connection", function(socket) {
   socket.on("username", function(name) {
     if (nameList.includes(name)) {
-      io.emit('exception', "Username taken");
+      io.emit("exception", "Username taken");
     } else {
+      // var now = new Date(Date.now());
+      // var formatted = now.getHours() + ":" + now.getMinutes() + ":" + now.getSeconds();
       nameList.push(name);
-      io.emit("username", name);
+      socket.emit("history", messageHistory);
+      socket.emit("username", name);
+      socket.broadcast.emit("username others", name);
+      io.emit("userList", nameList);
+      messageHistory.push(name + " has entered the chat.");
     }
   });
 
   socket.on("chat message", function(msg, name) {
-    io.emit("chat message", msg, name);
+    messageHistory.push(name + ": " + msg);
+    socket.emit("chat message", msg, name);
+    socket.broadcast.emit("chat message others", msg, name);
   });
 
   var name;
-  socket.on('user disconnect', function(_name) {    
+  socket.on("user disconnect", function(_name) {
     name = _name;
   });
-  
-  socket.on('disconnect', function() {    
+
+  socket.on("disconnect", function() {
     io.emit("user disconnect", name);
     nameList.pop(name);
+    io.emit("userList", nameList);
+    messageHistory.push(name + " has left the chat.");
   });
 });
 
