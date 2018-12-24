@@ -30,8 +30,6 @@ io.on("connection", function(socket) {
     if (nameList.includes(name)) {
       io.emit("exception", "Username taken");
     } else {
-      // var now = new Date(Date.now());
-      // var formatted = now.getHours() + ":" + now.getMinutes() + ":" + now.getSeconds();
       nameList.push(name);
       socket.emit("history", messageHistory);
       socket.emit("username", name);
@@ -52,9 +50,17 @@ io.on("connection", function(socket) {
     name = _name;
   });
 
+  socket.on("typing", function(name) {
+    socket.broadcast.emit("typing", name);
+  });
+
+  socket.on("not typing", function() {
+    socket.broadcast.emit("not typing");
+  });
+
   socket.on("disconnect", function() {
     io.emit("user disconnect", name);
-    nameList.pop(name);
+    nameList.splice(nameList.indexOf(name), 1);
     io.emit("userList", nameList);
     messageHistory.push(name + " has left the chat.");
   });

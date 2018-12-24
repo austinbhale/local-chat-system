@@ -26,6 +26,37 @@ $(function() {
     return false;
   });
 
+  var typing = false;
+  var timeout = undefined;
+  var timeoutInterval = 800;
+
+  function sendNotTyping() {
+    typing = false;
+    socket.emit("not typing", name);
+  }
+
+  // Calls timeout for this client typing and broadcasts the event to all other users. 
+  $("form").keypress(function(e) {
+    if (e.keyCode == 13) {
+      sendNotTyping();
+    } else if (!typing) {
+      typing = true;
+      socket.emit("typing", name);
+      timeout = setTimeout(sendNotTyping, timeoutInterval);
+    } else {
+      clearTimeout(timeout);
+      timeout = setTimeout(sendNotTyping, timeoutInterval);
+    }
+  });
+
+  socket.on("typing", function(name) {
+    $("#messages").append($('<li id="type">').text(name + " is typing..."));
+  });
+
+  socket.on("not typing", function() {
+    $("#type").remove();
+  });
+
   socket.on("chat message", function(msg, name) {
     $("#messages").append($('<li class="own">').text(name + ": " + msg));
   });
@@ -55,6 +86,7 @@ $(function() {
 
   socket.on("userList", function(data) {
     $("#users li:not(:first)").empty();
+    $('#users li:empty').remove();
     for (var i in data) {
       $("#users").append($("<li>").text(data[i]));
     }

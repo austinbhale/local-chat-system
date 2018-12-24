@@ -14,11 +14,27 @@ body {
 .container {
   position: relative;
   width: 80%;
-  height: 90%;
+  height: 85%;
+  top: 5%;
   margin-left: auto;
   margin-right: auto;
-  outline: solid black 2px;
+  outline: solid black 1px;
   overflow: auto;
+  display: flex;
+  flex-direction: column-reverse;
+}
+
+.header {
+  outline: none;
+  position: fixed;
+  right: 0;
+  width: 90%;
+  height: 5%;
+}
+
+.header p {
+  text-align: center;
+  padding-top: 5px;
 }
 
 form {
@@ -52,10 +68,23 @@ form button {
 
 #users {
   position: relative;
-  list-style: none;
   float: left;
   width: 10%;
   margin-left: 0.5%;
+}
+
+#users li a {
+  text-decoration: none;
+}
+
+#users li::after {
+  content: " •";
+  font-weight: bold;
+  color: #00FF00;
+}
+
+#selected::after {
+  content: none !important;
 }
 
 #messages {
