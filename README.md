@@ -34,16 +34,19 @@ Navigate your browser to ```http://localhost:3000```.
 ## Current Features
 
 * Custom usernames
+* Active users list
 
-* Connection/Disconnection broadcasted messages
-
-* Message history for new users
+![Alt text](/assets/User.gif "New User")
 
 * Real-time "{name} is typing..." functionality
-
 * Modern message bubbles
 
-* Active users list
+![Alt text](/assets/Chat.gif "Chat Messages")
+
+* Message history for new users
+* Connection/Disconnection broadcasted messages
+
+![Alt text](/assets/History.gif "History")
 
 ## Contributing
 

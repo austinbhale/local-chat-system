@@ -13,34 +13,36 @@ app.get("/", function(req, res) {
 app.use("/public", express.static(__dirname + "/public"));
 
 // Handle 404 responses.
-// TODO: Make a custom 404 response.
 app.use(function(req, res, next) {
-  res.status(404).send("Sorry can't find that!");
+  res.status(404).send("Sorry, this place doesn't exist!");
 });
 
 // Standard error handler.
-// TODO: Make a custom error handler response.
 app.use(function(err, req, res, next) {
   console.error(err.stack);
-  res.status(500).send("Something broke!");
+  res.status(500).send("Uh oh, something broke!");
 });
 
 io.on("connection", function(socket) {
+  socket.on("username validity", function(name) {
+    nameList.includes(name)
+      ? socket.emit("username validity", name, false)
+      : socket.emit("username validity", name, true);
+  });
+
   socket.on("username", function(name) {
-    if (nameList.includes(name)) {
-      io.emit("exception", "Username taken");
-    } else {
-      nameList.push(name);
-      socket.emit("history", messageHistory);
-      socket.emit("username", name);
-      socket.broadcast.emit("username others", name);
-      io.emit("userList", nameList);
-      messageHistory.push(name + " has entered the chat.");
-    }
+    nameList.push(name);
+    socket.emit("history", messageHistory);
+    socket.emit("username", name);
+    socket.broadcast.emit("username others", name);
+    io.emit("userList", nameList);
+    messageHistory.push(
+      '<li class="other">' + name + " has entered the chat.</li>"
+    );
   });
 
   socket.on("chat message", function(msg, name) {
-    messageHistory.push(name + ": " + msg);
+    messageHistory.push('<li class="other">' + name + ": " + msg + "</li>");
     socket.emit("chat message", msg, name);
     socket.broadcast.emit("chat message others", msg, name);
   });
@@ -58,11 +60,17 @@ io.on("connection", function(socket) {
     socket.broadcast.emit("not typing");
   });
 
+  socket.on("group history", function(data) {
+    socket.emit("group history", data);
+  });
+
   socket.on("disconnect", function() {
     io.emit("user disconnect", name);
     nameList.splice(nameList.indexOf(name), 1);
     io.emit("userList", nameList);
-    messageHistory.push(name + " has left the chat.");
+    messageHistory.push(
+      '<li class="other">' + name + " has left the chat.</li>"
+    );
   });
 });
 

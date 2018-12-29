@@ -1,12 +1,24 @@
+var socket;
+var individualHistory = [];
+
 $(function() {
-  var socket = io();
+  socket = io();
 
   var name = prompt("Please enter your username");
   while (name == null || name == "") {
     name = prompt("Please enter a valid username");
   }
 
-  socket.emit("username", name);
+  socket.emit("username validity", name);
+
+  socket.on("username validity", function(name, validity) {
+    if (validity) {
+      socket.emit("username", name);
+    } else {
+      name = prompt(name + " is already taken. Please choose another.");
+      socket.emit("username validity", name);
+    }
+  });
 
   socket.on("username", function(name) {
     $("#messages").append(
@@ -35,7 +47,7 @@ $(function() {
     socket.emit("not typing", name);
   }
 
-  // Calls timeout for this client typing and broadcasts the event to all other users. 
+  // Calls timeout for this client typing and broadcasts the event to all other users.
   $("form").keypress(function(e) {
     if (e.keyCode == 13) {
       sendNotTyping();
@@ -73,22 +85,36 @@ $(function() {
     );
   });
 
-  // TODO: Alternative to alerting the username is taken.
-  socket.on("exception", function(data) {
-    alert(data);
-  });
-
   socket.on("history", function(data) {
     for (var i in data) {
-      $("#messages").append($('<li class="other">').text(data[i]));
+      $("#messages").append(data[i]);
     }
+  });
+
+  socket.on("group history", function(data) {
+    $("#messages").html(data);
   });
 
   socket.on("userList", function(data) {
     $("#users li:not(:first)").empty();
-    $('#users li:empty').remove();
+    $("#users li:empty").remove();
     for (var i in data) {
-      $("#users").append($("<li>").text(data[i]));
+      $("#users").append(
+        $("<li>").html('<a href="#user" onClick="showUser();">' + data[i] + "</a>")
+      );
     }
   });
 });
+
+function showUser() {
+  // if (document.querySelector("a").getAttribute("href") == "#user") {
+  //   return;
+  // }
+  individualHistory[0] = $("#messages").html();
+  $("#messages").empty();
+}
+
+function showGroup() {
+  // individualHistory = $("#messages").html();
+  socket.emit("group history", individualHistory[0]);
+}
